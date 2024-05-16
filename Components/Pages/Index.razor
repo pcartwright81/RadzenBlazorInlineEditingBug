@@ -1,0 +1,49 @@
+@page "/"
+@using RadzenBlazorInlineEditingBug.Data
+@using RadzenBlazorInlineEditingBug.ViewModels
+@inject MyContext _context;
+
+<RadzenDataGrid @ref="dataGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowSorting="true" EditMode="DataGridEditMode.Single" AllowPaging="@allowPaging"
+                Data="@data" TItem="MyMainViewModel" RowUpdate="@OnUpdateRow" ColumnWidth="200px" AllowVirtualization="@allowVirtualization" Style="height:calc(100vh - 200px)"
+                FilterMode="FilterMode.SimpleWithMenu"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" RowRender="@RowRender"
+                LogicalFilterOperator="LogicalFilterOperator.And">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="Id" />
+        <RadzenDataGridColumn Property="CategoryId" Title="CategoryId">
+            <Template Context="obj">
+                @obj.CategoryName
+            </Template>
+            <EditTemplate Context="obj">
+                @{
+                    <RadzenDropDown Data="@categories"
+                                    TextProperty="@nameof(Category.Name)"
+                                    ValueProperty="@nameof(Category.Id)"
+                                    @bind-Value="@obj.CategoryId" Style="width:100%; display: block;" />
+                }
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Description" Title="Description">
+            <EditTemplate Context="obj">
+                <RadzenTextBox @bind-Value="obj.Description" Style="width:200px; display: block" Name="Description" aria-label="Enter Description" />
+                <RadzenRequiredValidator Text="Description is required" Component="Description" Popup="true" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Name" Title="Name">
+            <EditTemplate Context="obj">
+                <RadzenTextBox @bind-Value="obj.Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Context="obj" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="obj">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(obj))" @onclick:stopPropagation="true"/>
+            </Template>
+           <EditTemplate Context="obj">
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(obj))" aria-label="Save" />
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEdit(obj))" aria-label="Cancel" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
